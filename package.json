@@ -1,0 +1,65 @@
+{
+  "name": "@djp6/tpl-cli-vue",
+  "version": "1.0.0",
+  "description": "A boilerplate tool for vue development",
+  "bin": {
+    "tplcli": "bin/executer.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "commit": "git-cz",
+    "precommit": "lint-staged"
+  },
+  "keywords": [
+    "cli",
+    "boilerplate",
+    "vue"
+  ],
+  "author": "DaveJump <davejump16@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davejump/tpl-cli-vue.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "commander": "^3.0.2",
+    "minimist": "^1.2.0",
+    "semver": "^6.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=8.9"
+  },
+  "lint-staged": {
+    "{bin,lib}/**/*.js": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.2.0",
+    "@commitlint/config-conventional": "^8.2.0",
+    "commitizen": "^4.0.3",
+    "cz-conventional-changelog": "^3.0.2",
+    "husky": "^3.0.8",
+    "lint-staged": "^9.4.2",
+    "prettier": "^1.18.2"
+  }
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "template": "mobile",
+    "version": "^1.0.0"
+  },
+  {
+    "template": "desktop",
+    "version": "^1.0.0"
+  }
+]

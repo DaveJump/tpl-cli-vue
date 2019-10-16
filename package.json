@@ -54,6 +54,7 @@
     "execa": "^3.0.0",
     "global-dirs": "^2.0.0",
     "import-global": "^0.1.0",
+    "inquirer": "^7.0.0",
     "semver": "^6.3.0"
   },
   "devDependencies": {

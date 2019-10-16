@@ -6,6 +6,7 @@ require('../lib/utils/checkNodeVersion')
 const program = require('commander')
 const chalk = require('chalk')
 const didYouMean = require('didyoumean')
+const inquirer = require('inquirer')
 
 // Setting edit distance to 60% of the input string's length
 didYouMean.threshold = 0.6
@@ -13,7 +14,7 @@ didYouMean.threshold = 0.6
 program.version(require('../package.json').version, '-V, --version').usage('<command> [options]')
 
 program
-  .command('init <projectName>')
+  .command('init [projectName]')
   .description('Create a new project generating by vue-cli')
   .option('-t, --template <templateName>', 'The template you want to be generated')
   // register some of general vue-cli internal options
@@ -21,43 +22,70 @@ program
   .option('-g, --git [message]', 'Force git initialization with initial commit message')
   .option('-m, --packageManager <command>', 'Use specified npm client when installing dependencies')
   .action(async (name, cmd) => {
-    const options = cleanArgs(cmd)
-    const availableTemplateNames = require('../lib/templates.json').map(tpl => tpl.template)
-    const template = options.template
+    if (!name) {
+      const answers = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'projectName',
+          message: 'Enter your project name.',
+          validate(val) {
+            return Boolean(val.trim().length) || new Error('Project name should not be empty!')
+          }
+        }
+      ])
+      name = answers.projectName.replace(/\s+/g, '')
+    }
 
-    if (!availableTemplateNames.includes(template)) {
-      console.log()
-      console.log(
-        `  ` +
-          chalk.red(`Unavailable template name ${chalk.yellow(template)}. `) +
-          `Template must be one of ${chalk.yellow(availableTemplateNames.join(','))}`
-      )
-      const suggestion = didYouMean(template, availableTemplateNames)
-      if (suggestion) {
-        console.log(`  ` + chalk.red(`Did you mean ${chalk.yellow(suggestion)}?`))
-      }
-      return process.exit(1)
-    }
+    const options = cleanArgs(cmd)
     const loadCommand = require('../lib/utils/loadCommand')
-    try {
-      const handler = await loadCommand('init')
-      handler(name, options)
-    } catch (e) {
-      throw new Error(e.message)
+
+    const init = await loadCommand('init')
+    init(name, options)
+  })
+
+const { templates, nameStrings } = require('../lib/availableTemplates')
+
+program
+  .command('install [templateName]')
+  .description(`Install a template from one of ${nameStrings}`)
+  .option('-m, --packageManager <command>', 'Specify npm client to install')
+  .action(async (name, cmd) => {
+    if (!name) {
+      const answers = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'template',
+          message: 'Select the template to be installed.',
+          choices: templates.map(tpl => ({
+            name: `${tpl.name} (${tpl.description})`,
+            value: tpl.name
+          })),
+          filter(val) {
+            return val.toLowerCase()
+          }
+        }
+      ])
+      name = answers.template
     }
+
+    const options = cleanArgs(cmd)
+    const loadCommand = require('../lib/utils/loadCommand')
+
+    const install = await loadCommand('install')
+    install(name, options)
   })
 
 // output help information on unknown commands
 program.arguments('<command>').action(cmd => {
   program.outputHelp()
-  console.log(`  ` + chalk.red(`Unknown command ${chalk.yellow(cmd)}.\n\r`))
+  console.log(chalk.red(`Unknown command ${chalk.yellow(cmd)}.\n\r`))
   suggestCommands(cmd)
 })
 
 // add some useful info on help
 program.on('--help', () => {
   console.log()
-  console.log(`  Run ${chalk.cyan(`tplcli <command> --help`)} for detailed usage of given command.`)
+  console.log(`Run ${chalk.cyan(`tplcli <command> --help`)} for detailed usage of given command.`)
   console.log()
 })
 
@@ -107,6 +135,6 @@ function suggestCommands(unknownCommand) {
 
   const suggestion = didYouMean(unknownCommand, availableCommands)
   if (suggestion) {
-    console.log(`  ` + chalk.red(`Did you mean ${chalk.yellow(suggestion)}?`))
+    console.log(chalk.red(`Did you mean ${chalk.yellow(suggestion)}?`))
   }
 }

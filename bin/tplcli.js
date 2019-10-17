@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('../lib/utils/checkNodeVersion')
+require('../lib/util/checkNodeVersion')
 // require('../lib/utils/checkForUpdate')
 
 const program = require('commander')
@@ -37,7 +37,7 @@ program
     }
 
     const options = cleanArgs(cmd)
-    const loadCommand = require('../lib/utils/loadCommand')
+    const loadCommand = require('../lib/util/loadCommand')
 
     const init = await loadCommand('init')
     init(name, options)
@@ -48,7 +48,10 @@ const { templates, nameStrings } = require('../lib/availableTemplates')
 program
   .command('install [templateName]')
   .description(`Install a template from one of ${nameStrings}`)
-  .option('-m, --packageManager <command>', 'Specify npm client to install')
+  .option(
+    '-m, --packageManager <command>',
+    'Specify npm client to install, "npm" and "yarn" now supported'
+  )
   .action(async (name, cmd) => {
     if (!name) {
       const answers = await inquirer.prompt([
@@ -69,7 +72,7 @@ program
     }
 
     const options = cleanArgs(cmd)
-    const loadCommand = require('../lib/utils/loadCommand')
+    const loadCommand = require('../lib/util/loadCommand')
 
     const install = await loadCommand('install')
     install(name, options)
@@ -90,7 +93,7 @@ program.on('--help', () => {
 })
 
 // enhance common error messages
-const enhanceErrorMessages = require('../lib/utils/enhanceErrorMessages')
+const enhanceErrorMessages = require('../lib/util/enhanceErrorMessages')
 
 enhanceErrorMessages('missingArgument', argName => {
   return `Missing required argument ${chalk.yellow(`<${argName}>`)}.`

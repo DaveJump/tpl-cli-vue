@@ -7,7 +7,6 @@ const chalk = require('chalk')
 const inquirer = require('inquirer')
 const executeCommand = require('../lib/util/executeCommand')
 const args = require('minimist')(process.argv.slice(2))
-
 const registry = 'https://registry.npmjs.org/'
 
 runRelease()
@@ -17,6 +16,7 @@ async function runRelease() {
   await checkUncommitChanges()
   await runVersion()
   await runGitFlow()
+  await runPublish()
 
   const version = require('../package.json').version
   console.log()
@@ -115,7 +115,9 @@ async function runGitFlow() {
   await executeCommand('git', gitPattern.pushing)
 }
 
-async function runPublish() {}
+async function runPublish() {
+  await executeCommand('npm', ['publish', '--access', 'public', '--registry', registry])
+}
 
 async function checkUncommitChanges() {
   let { stdout: uncommit } = await executeCommand('git', ['status', '--porcelain'], 'pipe')

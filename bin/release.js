@@ -162,7 +162,7 @@ function getProjectGitBranch() {
     if (fs.existsSync(headPath)) {
       const refInfo = fs.readFileSync(headPath).toString()
       const branch = refInfo.replace(/ref:\s+refs\/heads\/([^\n]+)/, (s, g) => g).trim()
-      branch && resolve(branch)
+      resolve(branch)
     }
   })
 }
